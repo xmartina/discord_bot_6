@@ -94,6 +94,12 @@ class NotificationManager:
             user_data = notification_data['user_data']
             join_id = notification_data.get('join_id')
             source = notification_data.get('source', 'bot_monitoring')
+            
+            # Skip notifications for Begot server
+            server_name = user_data.get('server_name', '')
+            if server_name == "Begot":
+                self.logger.info(f"Skipping notification for user {user_data.get('username', 'Unknown')} in Begot server")
+                return
 
             # Add source information to user_data for formatting
             user_data_with_source = user_data.copy()

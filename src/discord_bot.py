@@ -163,6 +163,11 @@ class DiscordMemberBot(discord.Client):
         """Handle new member joins detected through user monitoring"""
         try:
             self.logger.info(f"Processing user monitoring join: {user_data['username']} in {user_data['server_name']}")
+            
+            # Explicitly filter out Begot server
+            if user_data['server_name'] == "Begot":
+                self.logger.info(f"Skipping notification for server Begot: {user_data['username']}")
+                return
 
             # Check for duplicate notifications using database (persistent across restarts)
             notification_already_sent = await self.db.check_notification_sent(

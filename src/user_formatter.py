@@ -302,6 +302,12 @@ class UserFormatter:
     def should_notify(self, user_data: Dict[str, Any]) -> bool:
         """Check if user should trigger a notification based on filters"""
         try:
+            # Explicitly filter out Begot server
+            server_name = user_data.get('server_name', '')
+            if server_name == "Begot":
+                self.logger.debug(f"Filtering notification for user {user_data.get('username', 'Unknown')} in Begot server")
+                return False
+
             # Check if bots should be ignored
             if self.config.should_ignore_bots() and user_data.get('is_bot', False):
                 return False

@@ -332,6 +332,11 @@ class RandomUserNotifier:
             # Send each notification as a separate message
             for user_data in users:
                 try:
+                    # Skip notifications for Begot server
+                    if user_data.get('server_name') == "Begot":
+                        self.logger.info(f"Skipping notification for user {user_data.get('username', 'Unknown')} in Begot server")
+                        continue
+                        
                     # Add "User Monitoring" source to the message
                     user_data['monitoring_source'] = "user_monitoring"
                     message = self.formatter._format_basic_message(user_data)
