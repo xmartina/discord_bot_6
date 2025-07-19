@@ -1,0 +1,211 @@
+# Discord Bot Configuration Template for Windows
+# Fill in your details after creating the Discord bot
+
+# ========================================
+# DISCORD CONFIGURATION (REQUIRED)
+# ========================================
+discord:
+  # Your Discord bot token (from Discord Developer Portal)
+  # 1. Go to https://discord.com/developers/applications
+  # 2. Create a new application or select existing one
+  # 3. Go to "Bot" section and copy the token
+  token: "YOUR_BOT_TOKEN_HERE"
+
+  # Your Discord user ID (your personal Discord account ID)
+  # 1. Enable Developer Mode in Discord Settings > Advanced
+  # 2. Right-click on your username and select "Copy ID"
+  user_id: "YOUR_USER_ID_HERE"
+
+  # Your Discord user token (for monitoring servers where bot isn't invited)
+  # WARNING: Keep this secret! This gives full access to your Discord account
+  # 1. Open Discord in web browser
+  # 2. Press F12 to open Developer Tools
+  # 3. Go to Network tab and refresh page
+  # 4. Look for Discord API requests and check Authorization header
+  user_token: "YOUR_USER_TOKEN_HERE"
+
+# ========================================
+# NOTIFICATION SETTINGS
+# ========================================
+notifications:
+  # How to send notifications: discord_dm, email, webhook, or multiple
+  method: "discord_dm"
+
+  # When to send notifications: instant, hourly, daily, smart
+  frequency: "instant"
+
+  # Include detailed user information in notifications
+  detailed_format: true
+
+  # Send test notification on startup to verify setup
+  send_test_on_startup: true
+
+# ========================================
+# USER INFORMATION FORMAT
+# ========================================
+user_details:
+  include_username: true
+  include_display_name: true
+  include_user_id: true
+  include_account_age: true
+  include_avatar: true
+  include_join_date: true
+  include_verification_status: true
+
+# ========================================
+# SERVER MONITORING SETTINGS
+# ========================================
+servers:
+  # Monitor all servers the bot is in
+  monitor_all: true
+
+  # List of server IDs to exclude from monitoring (empty = monitor all)
+  # To get server ID: Right-click server name > Copy ID (Developer Mode must be enabled)
+  excluded_servers: []
+
+  # Automatically discover new servers when bot joins them
+  auto_discover: true
+
+  # Maximum number of servers to monitor (prevents overload)
+  max_servers: 100
+
+# ========================================
+# USER MONITORING SETTINGS (FOR UNINVITED SERVERS)
+# ========================================
+user_monitoring:
+  # Enable user token monitoring for servers where bot isn't invited
+  enabled: true
+
+  # How often to check for new members (in seconds)
+  # 300 = 5 minutes (recommended for Windows)
+  check_interval: 300
+
+  # Monitor servers where you're a regular member
+  monitor_user_servers: true
+
+  # Combine results with bot monitoring
+  combine_with_bot_monitoring: true
+
+# ========================================
+# FILTERING OPTIONS
+# ========================================
+filters:
+  # Minimum account age in days (0 = no filter)
+  # Set to 1 to ignore brand new accounts, 7 for week-old accounts, etc.
+  minimum_account_age_days: 0
+
+  # Don't notify for bot accounts joining
+  ignore_bots: true
+
+  # Don't notify for Discord system messages
+  ignore_system_messages: true
+
+# ========================================
+# DATABASE SETTINGS
+# ========================================
+database:
+  # Database type: sqlite or json
+  type: "sqlite"
+
+  # Database file path (relative to bot directory)
+  path: "data/member_joins.db"
+
+  # Enable automatic database backups
+  backup_enabled: true
+
+  # How often to backup database (in hours)
+  backup_interval_hours: 24
+
+# ========================================
+# LOGGING SETTINGS
+# ========================================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  # Use DEBUG for troubleshooting, INFO for normal operation
+  level: "INFO"
+
+  # Log file path (relative to bot directory)
+  file: "logs/bot.log"
+
+  # Maximum log file size in MB before rotation
+  max_file_size_mb: 10
+
+  # Number of old log files to keep
+  backup_count: 5
+
+# ========================================
+# PERFORMANCE SETTINGS (WINDOWS OPTIMIZED)
+# ========================================
+performance:
+  # Seconds to wait between Discord API calls (prevents rate limiting)
+  # Increase if you get rate limited frequently
+  rate_limit_buffer: 1.0
+
+  # Number of records to process at once
+  batch_size: 50
+
+  # Memory usage limit in MB (adjust based on your system)
+  memory_limit_mb: 512
+
+# ========================================
+# TIMEZONE SETTINGS
+# ========================================
+# Set to your local timezone for accurate timestamps
+# Examples: "America/New_York", "Europe/London", "Asia/Tokyo"
+# Use "UTC" if unsure
+timezone: "UTC"
+
+# ========================================
+# WINDOWS-SPECIFIC SETTINGS
+# ========================================
+windows:
+  # Run bot in console window (true) or minimized (false)
+  show_console: true
+
+  # Automatically restart bot if it crashes
+  auto_restart: false
+
+  # Path to Chrome/Edge for user token extraction (if needed)
+  browser_path: "C:/Program Files/Google/Chrome/Application/chrome.exe"
+
+# ========================================
+# ADVANCED SETTINGS (OPTIONAL)
+# ========================================
+advanced:
+  # Enable debug mode for troubleshooting
+  debug_mode: false
+
+  # Custom Discord API base URL (leave default unless you know what you're doing)
+  api_base_url: "https://discord.com/api/v10"
+
+  # Maximum concurrent API requests
+  max_concurrent_requests: 10
+
+  # Timeout for API requests in seconds
+  request_timeout: 30
+
+# ========================================
+# WEBHOOK SETTINGS (OPTIONAL)
+# ========================================
+webhooks:
+  # Discord webhook URL for notifications (alternative to DM)
+  discord_webhook_url: ""
+
+  # Slack webhook URL (if using Slack notifications)
+  slack_webhook_url: ""
+
+  # Custom webhook URL
+  custom_webhook_url: ""
+
+# ========================================
+# EMAIL SETTINGS (OPTIONAL)
+# ========================================
+email:
+  # SMTP server settings for email notifications
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  smtp_username: ""
+  smtp_password: ""
+  from_email: ""
+  to_email: ""
+  use_tls: true

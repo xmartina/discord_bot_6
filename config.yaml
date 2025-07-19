@@ -1,0 +1,78 @@
+# Discord Bot Configuration
+# Fill in your details after creating the Discord bot
+
+discord:
+  token: "MTM5MjA4NTcxNzEyMjgxMzk1Mg.GrC4O9.jarzVZBAkWJSKKTsuBOmVZ1z9_wC1it3eGa_No" # Your bot token
+  user_id: "1132995685067804783" # Your Discord user ID
+  user_token: "MTEzMjk5NTY4NTA2NzgwNDc4Mw.GtM8MN.QRZ6LG1zl95zIdRJXK18z9CEIo_7B_6G80GPLY" # Your personal Discord user token (for monitoring servers where bot isn't invited)
+
+# Notification Settings
+notifications:
+  method: "discord_dm" # discord_dm, email, webhook, or multiple
+  frequency: "instant" # instant, hourly, daily, smart
+  detailed_format: true # Include all user details in notifications
+
+# User Information Format
+user_details:
+  include_username: true
+  include_display_name: true
+  include_user_id: true
+  include_account_age: true
+  include_avatar: true
+  include_join_date: true
+  include_verification_status: true
+
+# Server Monitoring Settings
+servers:
+  monitor_all: true # Monitor all servers the bot is in
+  excluded_servers: [] # List of server IDs to exclude (empty = monitor all)
+  auto_discover: true # Automatically discover new servers
+  max_servers: 100 # Maximum number of servers to monitor
+
+# User Monitoring Settings (for servers where you're a member but bot isn't invited)
+user_monitoring:
+  enabled: true # Enable user token monitoring
+  check_interval: 12 # Check interval in seconds (12 seconds for better detection)
+  monitor_user_servers: true # Monitor servers where you're a regular member
+  combine_with_bot_monitoring: true # Combine with bot monitoring results
+  max_retries: 3 # Maximum retries for failed API calls
+  retry_delay: 5 # Delay between retries in seconds
+  prioritize_activity_detection: true # Prioritize message/activity-based detection over count-based
+  message_scan_enabled: true # Enable scanning recent messages for real usernames
+  message_scan_timeframe: 300 # Scan messages from last 5 minutes (300 seconds)
+
+# Filtering Options
+filters:
+  minimum_account_age_days: 0 # 0 = no filter, notify for all accounts
+  ignore_bots: true # Don't notify for bot accounts
+  ignore_system_messages: true
+
+# Database Settings
+database:
+  type: "sqlite" # sqlite or json
+  path: "data/member_joins.db"
+  backup_enabled: true
+  backup_interval_hours: 24
+
+# Logging Settings
+logging:
+  level: "INFO" # DEBUG, INFO, WARNING, ERROR
+  file: "logs/bot.log"
+  max_file_size_mb: 10
+  backup_count: 5
+  encoding: "utf-8" # Force UTF-8 encoding for emoji support
+  use_ascii_emojis: true # Use ASCII-safe alternatives to Unicode emojis
+  format: "[%(asctime)s] %(levelname)s - %(name)s - %(message)s"
+
+# Performance Settings
+performance:
+  rate_limit_buffer: 1.5 # Seconds to wait between API calls (optimized for activity detection)
+  batch_size: 25 # Number of records to process at once (reduced to avoid rate limits)
+  memory_limit_mb: 512 # Memory usage limit
+  max_concurrent_requests: 5 # Maximum concurrent API requests
+  request_timeout: 30 # Request timeout in seconds
+  unicode_encoding: "utf-8" # Force UTF-8 encoding for AWS compatibility
+  activity_detection_priority: true # Prioritize activity-based methods over count-based
+
+# Timezone
+timezone: "UTC" # Change to your timezone (e.g., "America/New_York", "Europe/London")

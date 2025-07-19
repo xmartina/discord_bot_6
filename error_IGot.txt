@@ -1,0 +1,25 @@
+Checking Python installation...
+Python found! Continuing setup...
+
+Creating virtual environment...
+Activating virtual environment...
+Installing dependencies...
+ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'
+
+[notice] A new release of pip available: 22.3.1 -> 25.1.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+ERROR: Failed to install dependencies
+Make sure requirements.txt exists in the current directory
+Press any key to continue . . .
+
+C:\Users\Admin\Desktop\Discord_bot
+
+2025-07-09 13:23:15,670 - src.user_client - INFO - Detected potential new member through channel activity in Begot
+2025-07-09 13:23:15,764 - src.discord_bot - INFO - Processing user monitoring join: vickywatson in Begot
+2025-07-09 13:23:15,764 - src.discord_bot - INFO - User monitoring join processed: vickywatson in Begot
+2025-07-09 13:23:15,764 - src.user_client - INFO - New member detected via user monitoring: vickywatson in Begot
+2025-07-09 13:23:16,920 - src.notification_manager - INFO - Notification sent for vickywatson in Begot (via user monitoring)
+2025-07-09 13:23:18,108 - src.user_client - INFO - No member count available for We up 4ever, trying alternative monitoring methods
+2025-07-09 13:23:18,764 - src.user_client - INFO - Detected potential new member through channel activity in We up 4ever
+2025-07-09 13:23:18,920 - src.discord_bot - INFO - Processing user monitoring join: craiggie.0 in We up 4ever
+2025-07-09 13:23:18,936 - src.user_client - INFO - New member detected via user monitoring: craiggie.0 in We up 4ever

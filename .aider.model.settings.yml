@@ -1,0 +1,6 @@
+- name: openai/anthropic::2024-10-22::claude-sonnet-4-latest
+  use_system_prompt: false
+  extra_params:
+      extra_headers:
+        X-Requested-With: aider 0.0.0
+      max_tokens: 64000

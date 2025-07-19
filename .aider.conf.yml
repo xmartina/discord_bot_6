@@ -1,0 +1,6 @@
+# Aider Configuration File
+model: sourcegraph
+api-base: https://sourcegraph.com/.api/graphql
+api-key: sgp_e3cb05880bc40429_3aa9765e795aab393ad6cba9bcabbc03469fcfed
+# Disable model warnings
+no-show-model-warnings: true

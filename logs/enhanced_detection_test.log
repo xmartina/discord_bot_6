@@ -1,0 +1,32 @@
+2025-07-17 09:53:52,743 - INFO - Loading configuration...
+2025-07-17 09:53:52,753 - INFO - Starting Enhanced Detection Tests...
+2025-07-17 09:53:53,016 - INFO - User client initialized for bebe00398
+2025-07-17 09:53:53,017 - INFO - User client initialized successfully
+2025-07-17 09:53:53,017 - INFO - ============================================================
+2025-07-17 09:53:53,017 - INFO - Testing Activity-Based Detection Methods
+2025-07-17 09:53:53,018 - INFO - ============================================================
+2025-07-17 09:53:54,535 - INFO - Found 6 guilds where user is a member
+2025-07-17 09:53:54,538 - INFO - Testing on 6 guilds...
+2025-07-17 09:53:54,538 - INFO - 
+========================================
+2025-07-17 09:53:54,538 - INFO - Testing Guild: inspiredanalyst's server
+2025-07-17 09:53:54,539 - INFO - Guild ID: 744669586091409520
+2025-07-17 09:53:54,539 - INFO - ========================================
+2025-07-17 09:53:54,540 - INFO - 
+--- Testing Channel Activity Monitoring ---
+2025-07-17 09:53:54,938 - INFO - [METHOD2] (inspiredanalyst's server): Checking 158 channels
+2025-07-17 09:54:12,654 - INFO - 🔍 METHOD 2 (inspiredanalyst's server): ✅ Join message found in '💍┃how-to-join-vip'
+2025-07-17 09:54:12,655 - INFO - ✅ Channel activity detected 1 members:
+2025-07-17 09:54:12,689 - INFO -   - numanxbt (via enhanced_activity_join_message)
+2025-07-17 09:54:12,690 - INFO - 
+--- Testing Message Pattern Analysis ---
+2025-07-17 09:54:13,106 - INFO - [METHOD3] (inspiredanalyst's server): Analyzing 7 priority channels
+2025-07-17 09:54:15,694 - INFO - 🔍 METHOD 3 (inspiredanalyst's server): ✅ New member pattern detected
+2025-07-17 09:54:15,695 - INFO - ✅ Message patterns detected 1 members:
+2025-07-17 09:54:15,696 - INFO -   - muhammadusama0485 (via enhanced_activity_pattern_analysis)
+2025-07-17 09:54:15,697 - INFO - 
+--- Testing Deep Channel Scanning ---
+2025-07-17 09:54:17,568 - INFO - 🔍 METHOD 5 (inspiredanalyst's server): Deep scanning 158 channels
+2025-07-17 09:58:18,134 - INFO - ❌ No deep scanning results
+2025-07-17 10:41:44,636 - INFO - 
+--- Testing Recent Message Scanning ---
