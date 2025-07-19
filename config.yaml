@@ -25,7 +25,7 @@ user_details:
 # Server Monitoring Settings
 servers:
   monitor_all: true # Monitor all servers the bot is in
-  excluded_servers: [] # List of server IDs to exclude (empty = monitor all)
+  excluded_servers: [1389524220156837958] # List of server IDs to exclude (Begot server ID added to exclusion list)
   auto_discover: true # Automatically discover new servers
   max_servers: 100 # Maximum number of servers to monitor
 

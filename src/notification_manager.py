@@ -153,6 +153,9 @@ class NotificationManager:
 
             # Format message
             message_content = self.formatter.format_notification_message(user_data)
+            
+            # Add line break after each message for better readability
+            message_content = f"{message_content}\n\n"
 
             self.logger.debug(f"Formatted message length: {len(message_content)} characters")
 

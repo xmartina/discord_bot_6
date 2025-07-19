@@ -122,8 +122,11 @@ class UserFormatter:
         source = user_data.get('monitoring_source', '')
         source_text = "(User Monitoring)" if source == "user_monitoring" else ""
         
-        # Simple message format as requested with monitoring source
-        return f"{source_text} user {username} with account age {account_age} has joined the server {server_name}"
+        # Simple message format with line breaks instead of commas
+        if source_text:
+            return f"{source_text} user {username} with account age {account_age} has joined the server {server_name}"
+        else:
+            return f"user {username} with account age {account_age} has joined the server {server_name}"
 
     def _format_detailed_message(self, user_data: Dict[str, Any]) -> str:
         """Format detailed notification message"""
