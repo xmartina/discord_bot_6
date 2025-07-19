@@ -44,7 +44,11 @@ class NotificationManager:
                     timeout=1.0
                 )
 
+                # Send each notification individually
                 await self._send_notification(notification_data)
+                
+                # Mark task as done
+                self.notification_queue.task_done()
 
                 # Rate limiting
                 rate_limit = self.config.get_rate_limit_buffer()
@@ -154,9 +158,8 @@ class NotificationManager:
             # Format message
             message_content = self.formatter.format_notification_message(user_data)
             
-            # Add line break after each message for better readability
-            message_content = f"{message_content}\n\n"
-
+            # No need to add extra line breaks - each notification is sent as its own message
+            
             self.logger.debug(f"Formatted message length: {len(message_content)} characters")
 
             # Check if message is too long for Discord (2000 character limit)

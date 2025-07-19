@@ -321,32 +321,34 @@ class RandomUserNotifier:
             if not users:
                 return
                 
-            # Format each user notification
-            user_notifications = []
-            for user_data in users:
-                # Add "User Monitoring" source to the message
-                user_data['monitoring_source'] = "user_monitoring"
-                message = self.formatter._format_basic_message(user_data)
-                user_notifications.append(message)
-                
-            # Join notifications into one message
-            bulk_message = " , ".join(user_notifications)
-            
-            # Send to configured user ID
+            # Get user to send notifications to
             user_id = self.config.get_user_id()
             user = await self.bot.fetch_user(user_id)
             
             if not user:
                 self.logger.error(f"Could not find user with ID {user_id}")
                 return
-                
-            await user.send(bulk_message)
             
-            self.logger.info(f"Sent bulk notification with {len(users)} random users")
+            # Send each notification as a separate message
+            for user_data in users:
+                try:
+                    # Add "User Monitoring" source to the message
+                    user_data['monitoring_source'] = "user_monitoring"
+                    message = self.formatter._format_basic_message(user_data)
+                    
+                    # Send as individual message
+                    await user.send(message)
+                    
+                    # Add a small delay between messages to avoid rate limiting
+                    await asyncio.sleep(0.5)
+                except Exception as e:
+                    self.logger.error(f"Error sending notification for user {user_data.get('username', 'Unknown')}: {e}")
+            
+            self.logger.info(f"Sent individual notifications for {len(users)} random users")
             
         except discord.Forbidden:
             self.logger.error("Cannot send DM - DMs may be disabled or bot blocked")
         except discord.HTTPException as e:
-            self.logger.error(f"HTTP error sending bulk notification: {e}")
+            self.logger.error(f"HTTP error sending notifications: {e}")
         except Exception as e:
-            self.logger.error(f"Error sending bulk notification: {e}") 
+            self.logger.error(f"Error sending notifications: {e}") 

@@ -220,7 +220,17 @@ class ServerManager:
     
     def is_server_excluded(self, guild_id: int) -> bool:
         """Check if a server is excluded from monitoring"""
-        return guild_id in self.excluded_servers
+        # Explicitly exclude the Begot server
+        if guild_id in self.excluded_servers:
+            return True
+            
+        # Get server name if available and check if it's "Begot"
+        guild = self.bot.get_guild(guild_id)
+        if guild and guild.name == "Begot":
+            self.logger.info(f"Excluding server 'Begot' (ID: {guild_id}) from monitoring")
+            return True
+            
+        return False
     
     async def add_excluded_server(self, guild_id: int) -> bool:
         """Add a server to the exclusion list"""

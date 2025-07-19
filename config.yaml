@@ -10,7 +10,7 @@ discord:
 notifications:
   method: "discord_dm" # discord_dm, email, webhook, or multiple
   frequency: "instant" # instant, hourly, daily, smart
-  detailed_format: true # Include all user details in notifications
+  detailed_format: false # Include all user details in notifications (set to false for simpler line-by-line format)
 
 # User Information Format
 user_details:

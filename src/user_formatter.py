@@ -122,7 +122,7 @@ class UserFormatter:
         source = user_data.get('monitoring_source', '')
         source_text = "(User Monitoring)" if source == "user_monitoring" else ""
         
-        # Simple message format with line breaks instead of commas
+        # Simple message format - each notification is sent as a separate message
         if source_text:
             return f"{source_text} user {username} with account age {account_age} has joined the server {server_name}"
         else:
