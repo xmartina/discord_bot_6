@@ -297,7 +297,7 @@ class RandomUserNotifier:
             if not user_servers:
                 # Default server names as absolute last resort
                 server_names = [
-                    "Abu Cartel", "The Wizards Hub 🧙", "inspiredanalyst's server"
+                    "Abu Cartel", "The Wizards Hub 🧙", "No Limit Trades", "inspiredanalyst's server"
                 ]
                 
                 for name in server_names:
