@@ -262,20 +262,57 @@ class RandomUserNotifier:
         random_users = []
         
         try:
-            # If no servers provided, create some generic ones
-            if not servers:
-                # Simple server names that might actually exist
+            # Always ensure we have user's actual servers
+            user_servers = []
+            
+            # Try to get real servers from user client first
+            if hasattr(self.bot, 'user_client') and self.bot.user_client:
+                try:
+                    user_guilds = self.bot.user_client.get_user_guilds()
+                    if not user_guilds and hasattr(self.bot.user_client, 'discover_user_guilds'):
+                        user_guilds = await self.bot.user_client.discover_user_guilds()
+                    
+                    if user_guilds:
+                        for guild in user_guilds:
+                            guild_id = guild.get("id", 0)
+                            guild_name = guild.get("name", "Unknown Server")
+                            user_servers.append({
+                                "id": guild_id,
+                                "name": guild_name
+                            })
+                        self.logger.info(f"Found {len(user_servers)} real servers from user token")
+                except Exception as e:
+                    self.logger.error(f"Error getting user guilds: {e}")
+            
+            # If no user guilds, get bot guilds
+            if not user_servers:
+                for guild in self.bot.guilds:
+                    user_servers.append({
+                        "id": guild.id,
+                        "name": guild.name
+                    })
+                self.logger.info(f"Found {len(user_servers)} real servers from bot connection")
+            
+            # If still no servers, use default servers as absolute last resort
+            if not user_servers:
+                # Default server names as absolute last resort
                 server_names = [
                     "Abu Cartel", "The Wizards Hub 🧙", "inspiredanalyst's server"
                 ]
                 
-                servers = []
                 for name in server_names:
                     fake_id = random.randint(100000000000000000, 999999999999999999)
-                    servers.append({
+                    user_servers.append({
                         "id": fake_id,
                         "name": name
                     })
+                self.logger.info(f"Using {len(user_servers)} default server names as last resort")
+            
+            # IMPORTANT: Always use the user's actual servers, even if servers were provided
+            # This ensures notifications always show servers the user belongs to
+            if user_servers:
+                servers = user_servers
+                self.logger.info(f"Using {len(servers)} servers that the user actually belongs to")
             
             # Number patterns that appear at the end of usernames
             number_patterns = [
@@ -297,114 +334,76 @@ class RandomUserNotifier:
                 lambda: "0" + str(random.randint(1, 9)) + str(random.randint(1, 9))  # 001-099
             ]
             
-            # International usernames by country
-            international_names = {
-                "Germany": [
-                    # German-style usernames
-                    lambda: f"deutsche{random.choice(number_patterns)()}",
-                    lambda: f"berlin{random.choice(['fan', 'city', 'er'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['klaus', 'hans', 'franz', 'lukas', 'felix', 'max', 'jan'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['schmidt', 'mueller', 'wagner', 'becker', 'hoffmann'])}{random.choice(['DE', '_de', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['bayern', 'dortmund', 'frankfurt'])}_fan{random.choice(number_patterns)()}"
-                ],
-                "Japan": [
-                    # Japanese-style usernames
-                    lambda: f"{random.choice(['tokyo', 'osaka', 'kyoto', 'sapporo'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['sakura', 'ninja', 'samurai', 'kawaii', 'otaku'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['taka', 'hiro', 'yuki', 'kazu', 'ken', 'aki'])}{random.choice(['chan', 'kun', 'san', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['neko', 'kitsune', 'okami', 'inu'])}{random.choice(['JP', '_jp', ''])}{random.choice(number_patterns)()}"
-                ],
-                "Brazil": [
-                    # Brazilian-style usernames
-                    lambda: f"{random.choice(['brasil', 'rio', 'samba', 'bola'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['carlos', 'pedro', 'joao', 'lucas', 'gabriel'])}_br{random.choice(number_patterns)()}",
-                    lambda: f"br_{random.choice(['gamer', 'player', 'pro', 'master'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['silva', 'santos', 'oliveira', 'souza'])}{random.choice(number_patterns)()}"
-                ],
-                "France": [
-                    # French-style usernames
-                    lambda: f"{random.choice(['paris', 'lyon', 'marseille', 'nice'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['pierre', 'jean', 'michel', 'antoine', 'louis'])}{random.choice(['_fr', 'FR', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"le_{random.choice(['chat', 'chien', 'roi', 'joueur'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['dupont', 'martin', 'dubois', 'moreau'])}{random.choice(number_patterns)()}"
-                ],
-                "Thailand": [
-                    # Thai-style usernames
-                    lambda: f"{random.choice(['thai', 'bangkok', 'phuket', 'samui'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['somchai', 'chai', 'lek', 'noi'])}{random.choice(['_th', 'TH', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"thai_{random.choice(['gamer', 'player', 'king', 'star'])}{random.choice(number_patterns)()}"
-                ],
-                "Argentina": [
-                    # Argentinian-style usernames
-                    lambda: f"{random.choice(['argentina', 'boca', 'river', 'tango'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['leo', 'diego', 'juan', 'carlos', 'martin'])}_ar{random.choice(number_patterns)()}",
-                    lambda: f"ar_{random.choice(['futbol', 'mate', 'pibe', 'crack'])}{random.choice(number_patterns)()}"
-                ],
-                "Italy": [
-                    # Italian-style usernames
-                    lambda: f"{random.choice(['italia', 'roma', 'milano', 'napoli'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['mario', 'luigi', 'marco', 'giuseppe', 'antonio'])}{random.choice(['_it', 'IT', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"il_{random.choice(['calciatore', 'dottore', 're', 'maestro'])}{random.choice(number_patterns)()}"
-                ],
-                "Vietnam": [
-                    # Vietnamese-style usernames
-                    lambda: f"{random.choice(['viet', 'hanoi', 'saigon', 'mekong'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['nguyen', 'tran', 'le', 'pham', 'hoang'])}{random.choice(['_vn', 'VN', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"vn_{random.choice(['dragon', 'tiger', 'star', 'gamer'])}{random.choice(number_patterns)()}"
-                ],
-                "Spain": [
-                    # Spanish-style usernames
-                    lambda: f"{random.choice(['espana', 'madrid', 'barca', 'sevilla'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['javier', 'carlos', 'antonio', 'miguel', 'jose'])}{random.choice(['_es', 'ES', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"el_{random.choice(['toro', 'matador', 'rey', 'jugador'])}{random.choice(number_patterns)()}"
-                ],
-                "United States": [
-                    # American-style usernames
-                    lambda: f"{random.choice(['usa', 'nyc', 'la', 'vegas'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['john', 'mike', 'dave', 'chris', 'ryan'])}{random.choice(['_usa', 'USA', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"the_{random.choice(['gamer', 'pro', 'king', 'boss'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['smith', 'jones', 'miller', 'davis', 'wilson'])}{random.choice(number_patterns)()}"
-                ],
-                "South Korea": [
-                    # Korean-style usernames
-                    lambda: f"{random.choice(['korea', 'seoul', 'busan', 'incheon'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['kim', 'lee', 'park', 'choi', 'jung'])}{random.choice(['_kr', 'KR', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"kr_{random.choice(['gamer', 'pro', 'star', 'master'])}{random.choice(number_patterns)()}"
-                ],
-                "India": [
-                    # Indian-style usernames
-                    lambda: f"{random.choice(['india', 'delhi', 'mumbai', 'bengaluru'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['raj', 'amit', 'vijay', 'rahul', 'sunil'])}{random.choice(['_in', 'IN', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"indian_{random.choice(['gamer', 'pro', 'master', 'king'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['sharma', 'patel', 'singh', 'kumar', 'das'])}{random.choice(number_patterns)()}"
-                ],
-                "Mexico": [
-                    # Mexican-style usernames
-                    lambda: f"{random.choice(['mexico', 'cdmx', 'guadalajara', 'cancun'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['juan', 'carlos', 'miguel', 'jose', 'luis'])}{random.choice(['_mx', 'MX', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"el_{random.choice(['chavo', 'vato', 'compa', 'amigo'])}{random.choice(number_patterns)()}"
-                ],
-                "Philippines": [
-                    # Filipino-style usernames
-                    lambda: f"{random.choice(['pinoy', 'manila', 'cebu', 'davao'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['juan', 'carlo', 'paolo', 'miguel', 'marco'])}{random.choice(['_ph', 'PH', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"ph_{random.choice(['gamer', 'player', 'master', 'pro'])}{random.choice(number_patterns)()}"
-                ],
-                "China": [
-                    # Chinese-style usernames
-                    lambda: f"{random.choice(['china', 'beijing', 'shanghai', 'guangzhou'])}{random.choice(number_patterns)()}",
-                    lambda: f"{random.choice(['li', 'wang', 'zhang', 'chen', 'liu'])}{random.choice(['_cn', 'CN', ''])}{random.choice(number_patterns)()}",
-                    lambda: f"cn_{random.choice(['dragon', 'tiger', 'panda', 'master'])}{random.choice(number_patterns)()}"
-                ]
-            }
-            
-            # Common username patterns that work across cultures
-            common_patterns = [
-                lambda: f"{random.choice(['gamer', 'player', 'pro', 'master', 'fan'])}{random.choice(number_patterns)()}",
-                lambda: f"{random.choice(['cool', 'super', 'mega', 'ultra', 'epic'])}{random.choice(['guy', 'dude', 'user', 'gamer'])}{random.choice(number_patterns)()}",
-                lambda: f"{random.choice(['the', 'mr', 'ms', 'dr', 'real'])}{random.choice(['legend', 'boss', 'king', 'queen', 'champion'])}{random.choice(number_patterns)()}",
-                lambda: f"{random.choice(['gaming', 'streaming', 'playing', 'coding', 'trading'])}{random.choice(['pro', 'master', 'guru', 'expert', 'wizard'])}{random.choice(number_patterns)()}"
+            # More realistic username patterns that look like actual Discord users
+            realistic_patterns = [
+                # Simple name + number (most common pattern)
+                lambda name, country: f"{name.lower()}{random.choice(number_patterns)()}",
+                
+                # Name with underscores
+                lambda name, country: f"{name.lower()}_{random.choice(number_patterns)()}",
+                
+                # Name with country code
+                lambda name, country: f"{name.lower()}{country.lower()}{random.choice(number_patterns)()}",
+                
+                # Gaming-style names
+                lambda name, country: f"{name.lower()}_gaming{random.choice(number_patterns)()}",
+                lambda name, country: f"{name.lower()}_yt{random.choice(number_patterns)()}",
+                lambda name, country: f"{name.lower()}_ttv{random.choice(number_patterns)()}",
+                
+                # Professional-style names
+                lambda name, country: f"{name.lower()}.{random.choice(['official', 'real', 'og'])}{random.choice(number_patterns)()}",
+                
+                # Decorative names
+                lambda name, country: f"{'x' if random.random() < 0.5 else 'X'}{name.lower()}{'x' if random.random() < 0.5 else 'X'}{random.choice(number_patterns)()}",
+                
+                # Hobby-based names
+                lambda name, country: f"{random.choice(['gamer', 'player', 'artist', 'dev'])}.{name.lower()}{random.choice(number_patterns)()}"
             ]
+            
+            # Names by country
+            international_names = {
+                "Germany": ["klaus", "hans", "franz", "lukas", "felix", "max", "jan", "anna", "lena", "emma", "sophia", "mia", "hannah", "schmidt", "mueller", "wagner", "thomas", "michael", "andreas", "stefan", "peter", "christian", "markus", "alexander", "wolfgang", "martin", "tobias", "daniel", "sebastian", "niklas", "leon", "jonas", "elias", "noah", "paul", "charlotte", "marie", "laura", "julia", "sarah", "lisa", "leonie", "katharina", "johanna", "fischer", "weber", "schneider", "meyer", "becker", "hoffmann", "schulz", "bauer", "zimmermann", "braun", "krause", "lehmann", "keller", "neumann"],
+                
+                "Japan": ["taka", "hiro", "yuki", "kazu", "ken", "aki", "yuki", "hana", "sakura", "haruto", "yuma", "aoi", "rin", "sora", "kenji", "takashi", "hiroshi", "akira", "daisuke", "satoshi", "ryota", "shota", "yuto", "haruki", "kaito", "yamato", "riku", "sota", "yui", "mio", "akane", "haruna", "mei", "miyu", "koharu", "hinata", "ichika", "suzuki", "tanaka", "watanabe", "takahashi", "ito", "yamamoto", "nakamura", "kobayashi", "sato", "kato", "yoshida", "yamada", "sasaki", "yamaguchi", "matsumoto", "inoue", "kimura", "hayashi", "shimizu"],
+                
+                "Brazil": ["carlos", "pedro", "joao", "lucas", "gabriel", "maria", "ana", "julia", "beatriz", "silva", "santos", "oliveira", "gustavo", "rafael", "bruno", "felipe", "rodrigo", "eduardo", "leonardo", "marcelo", "vinicius", "thiago", "matheus", "diego", "luiz", "ricardo", "camila", "fernanda", "amanda", "juliana", "mariana", "bruna", "carolina", "leticia", "natalia", "isabela", "pereira", "almeida", "ferreira", "rodrigues", "costa", "gomes", "martins", "araujo", "melo", "ribeiro", "carvalho", "nascimento", "lima", "sousa", "barbosa", "moreira", "cavalcanti"],
+                
+                "France": ["pierre", "jean", "michel", "antoine", "louis", "sophie", "marie", "camille", "dupont", "martin", "dubois", "nicolas", "philippe", "francois", "sebastien", "laurent", "julien", "thomas", "alexandre", "olivier", "mathieu", "romain", "clement", "vincent", "maxime", "julie", "celine", "isabelle", "nathalie", "valerie", "claire", "sandrine", "aurelie", "elodie", "laure", "petit", "leroy", "moreau", "simon", "fournier", "girard", "lambert", "fontaine", "rousseau", "vincent", "muller", "lefevre", "faure", "andre", "mercier", "blanc", "guerin", "boyer"],
+                
+                "Thailand": ["somchai", "chai", "lek", "noi", "sombat", "malee", "sompong", "ratana", "somsak", "thaksin", "ananda", "apirak", "boon", "chatchai", "decha", "kiet", "mongkut", "narong", "panya", "samart", "sunan", "tawan", "udom", "vichai", "yuthasak", "achara", "busaba", "chailai", "duangkamol", "jaidee", "kanda", "malai", "napasorn", "orasa", "pim", "rattana", "sirikit", "thong", "ubon", "wattana", "yindee", "jaidee", "maliwan", "suwannee", "boonmee", "chaiyasit", "thongchai", "sakchai", "prasit", "somporn", "wichai", "pracha"],
+                
+                "Argentina": ["leo", "diego", "juan", "carlos", "martin", "sofia", "valentina", "camila", "martinez", "rodriguez", "alejandro", "matias", "nicolas", "sebastian", "federico", "javier", "fernando", "lucas", "maximiliano", "pablo", "santiago", "tomas", "victoria", "lucia", "martina", "agustina", "florencia", "catalina", "julieta", "rocio", "gonzalez", "fernandez", "lopez", "diaz", "perez", "garcia", "sanchez", "romero", "sosa", "alvarez", "torres", "ruiz", "ramirez", "flores", "benitez", "acosta", "medina", "herrera", "suarez", "aguirre", "gimenez", "gutierrez", "castro"],
+                
+                "Italy": ["mario", "luigi", "marco", "giuseppe", "antonio", "sofia", "giulia", "giorgia", "rossi", "ferrari", "alessandro", "andrea", "francesco", "luca", "matteo", "davide", "giovanni", "riccardo", "simone", "lorenzo", "salvatore", "roberto", "stefano", "chiara", "francesca", "valentina", "martina", "sara", "alessia", "elena", "laura", "elisa", "russo", "bianchi", "romano", "colombo", "ricci", "marino", "greco", "bruno", "gallo", "conti", "costa", "giordano", "mancini", "lombardi", "moretti", "barbieri", "fontana", "santoro", "mariani", "rinaldi", "caruso"],
+                
+                "Vietnam": ["nguyen", "tran", "le", "pham", "hoang", "minh", "linh", "tuan", "anh", "huong", "thanh", "hung", "huy", "quang", "duc", "dung", "hai", "hieu", "nam", "phong", "son", "thang", "trung", "vinh", "binh", "chi", "dao", "ha", "hoa", "hong", "khanh", "lan", "mai", "ngoc", "nhu", "phuong", "thao", "thu", "trinh", "tuyet", "van", "yen", "dinh", "do", "duong", "luong", "ly", "mai", "ngo", "truong", "vo", "vu", "dang", "bui", "ho", "huynh"],
+                
+                "Spain": ["javier", "carlos", "antonio", "miguel", "jose", "maria", "carmen", "lucia", "garcia", "rodriguez", "david", "manuel", "rafael", "francisco", "juan", "alberto", "luis", "alvaro", "daniel", "fernando", "pablo", "sergio", "alejandro", "ramon", "laura", "ana", "cristina", "isabel", "marta", "patricia", "paula", "pilar", "raquel", "silvia", "teresa", "fernandez", "lopez", "martinez", "sanchez", "perez", "gomez", "martin", "jimenez", "ruiz", "hernandez", "diaz", "moreno", "alvarez", "romero", "alonso", "gutierrez", "navarro", "torres"],
+                
+                "Canada": ["james", "william", "benjamin", "logan", "ethan", "jacob", "alexander", "liam", "noah", "lucas", "emma", "olivia", "charlotte", "sophia", "amelia", "isabella", "ava", "mia", "emily", "abigail", "smith", "brown", "roy", "wilson", "leblanc", "tremblay", "gagnon", "bouchard", "gauthier", "morin", "lavoie", "fortin", "gagne", "ouellet", "pelletier", "belanger", "bergeron", "cote", "nguyen", "chan", "wong", "li", "singh", "patel", "kumar", "sharma", "kaur", "grewal", "gill", "dhillon", "sandhu", "sidhu"],
+                
+                "United States": ["john", "mike", "dave", "chris", "ryan", "emma", "olivia", "ava", "smith", "johnson", "michael", "robert", "james", "david", "joseph", "thomas", "charles", "william", "daniel", "matthew", "anthony", "donald", "steven", "paul", "andrew", "joshua", "kenneth", "kevin", "brian", "george", "mary", "patricia", "jennifer", "linda", "elizabeth", "barbara", "susan", "jessica", "sarah", "karen", "williams", "brown", "jones", "garcia", "miller", "davis", "rodriguez", "martinez", "hernandez", "lopez", "gonzalez", "wilson", "anderson", "taylor", "thomas", "moore"],
+                
+                "South Korea": ["kim", "lee", "park", "choi", "jung", "min", "jin", "seung", "ji", "hyun", "joon", "soo", "young", "sung", "ho", "jae", "woo", "dong", "hyung", "kyu", "tae", "yeon", "hye", "eun", "joo", "kyung", "mi", "sun", "yoon", "hee", "kang", "yoo", "shin", "song", "han", "lim", "moon", "yang", "hwang", "ahn", "bae", "kwon", "jang", "ryu", "hong", "seo", "baek", "im", "jeong", "koo", "nam", "oh", "son", "yun", "jeon"],
+                
+                "Poland": ["adam", "piotr", "marcin", "michal", "tomasz", "lukasz", "pawel", "jan", "jakub", "marek", "anna", "maria", "katarzyna", "malgorzata", "agnieszka", "barbara", "krystyna", "ewa", "elzbieta", "zofia", "kowalski", "nowak", "wisniewski", "wojcik", "kowalczyk", "kaminski", "lewandowski", "zielinski", "szymanski", "wozniak", "dabrowski", "kozlowski", "jankowski", "mazur", "kwiatkowski", "krawczyk", "piotrowski", "grabowski", "nowakowski", "pawlowski", "michalski", "nowicki", "adamczyk", "dudek", "zajac", "wieczorek", "jablonski", "krol", "majewski", "olszewski"],
+                
+                "India": ["raj", "amit", "vijay", "rahul", "sunil", "priya", "neha", "pooja", "sharma", "patel", "ajay", "anil", "deepak", "rajesh", "rakesh", "sanjay", "suresh", "vikram", "vivek", "arun", "ashok", "dinesh", "kumar", "manoj", "mukesh", "ramesh", "anjali", "anita", "kavita", "kiran", "lakshmi", "meena", "nisha", "radha", "rekha", "seema", "singh", "kumar", "das", "kaur", "shah", "gupta", "jain", "agarwal", "verma", "yadav", "mishra", "pandey", "chatterjee", "mukherjee", "banerjee", "roy", "kulkarni", "patil", "reddy"],
+                
+                "Mexico": ["juan", "carlos", "miguel", "jose", "luis", "maria", "guadalupe", "rosa", "hernandez", "lopez", "alejandro", "antonio", "fernando", "francisco", "javier", "manuel", "pedro", "ricardo", "roberto", "sergio", "ana", "carmen", "elizabeth", "gabriela", "laura", "leticia", "martha", "patricia", "silvia", "veronica", "garcia", "martinez", "rodriguez", "gonzalez", "perez", "sanchez", "ramirez", "torres", "flores", "diaz", "reyes", "morales", "cruz", "ortiz", "gutierrez", "chavez", "ramos", "ruiz", "mendoza", "aguilar", "castillo", "romero", "alvarez", "suarez", "vazquez"],
+                
+                "Indonesia": ["budi", "agus", "ahmad", "slamet", "eko", "bambang", "joko", "heru", "dedi", "yanto", "siti", "ani", "wati", "yuli", "rina", "dewi", "sri", "lestari", "yani", "susanti", "saputra", "kusuma", "wijaya", "santoso", "wibowo", "hidayat", "nugroho", "ismail", "setiawan", "sutanto", "suryanto", "hartono", "gunawan", "budiman", "kurniawan", "santosa", "sugiarto", "cahyono", "susanto", "iswanto", "sudarsono", "prasetyo", "abidin", "permana", "nugraha", "saputro", "widodo", "supriyanto", "suryadi", "haryanto", "putra", "arief", "pratama", "purnomo"],
+                
+                "Philippines": ["juan", "carlo", "paolo", "miguel", "marco", "maria", "rosa", "ana", "santos", "reyes", "antonio", "eduardo", "francisco", "jose", "manuel", "pedro", "ricardo", "roberto", "angelica", "carmela", "cristina", "elena", "gabriela", "isabel", "luisa", "teresa", "dela cruz", "garcia", "reyes", "ramos", "aquino", "santos", "diaz", "cruz", "bautista", "ocampo", "mendoza", "torres", "flores", "gonzales", "perez", "pascual", "rodriguez", "rivera", "villanueva", "navarro", "ignacio", "romero", "manalaysay", "tolentino", "aguilar", "castro", "valdez", "fernandez"],
+                
+                "China": ["li", "wang", "zhang", "chen", "liu", "wei", "xin", "yi", "min", "jing", "yang", "huang", "zhao", "wu", "zhou", "sun", "lin", "zhu", "he", "gao", "ma", "hu", "luo", "liang", "song", "zheng", "xie", "han", "tang", "feng", "yu", "dong", "xiao", "cheng", "cao", "yuan", "deng", "xu", "fu", "shen", "zeng", "peng", "pan", "guo", "jiang", "tian", "ding", "wei", "yao", "lv", "ren", "lu", "qian", "long", "fang", "dai", "cai", "jia", "tan"],
+                
+                "Romania": ["andrei", "alexandru", "mihai", "ionut", "gabriel", "cristian", "florin", "marian", "catalin", "daniel", "maria", "elena", "ioana", "ana", "andreea", "cristina", "mihaela", "alexandra", "nicoleta", "daniela", "popescu", "ionescu", "popa", "stan", "dumitru", "gheorghe", "stoica", "constantin", "marin", "vasile", "dinu", "serban", "florescu", "mocanu", "dumitrescu", "diaconu", "mazilu", "nedelcu", "georgescu", "albu", "tabacu", "stanescu", "preda", "manea", "cristea", "toma", "florea", "ene", "lungu", "simion", "tudor", "rusu", "munteanu", "matei"],
+                
+                "Netherlands": ["jan", "peter", "hans", "kees", "henk", "jeroen", "sander", "thomas", "tim", "mark", "maria", "johanna", "anna", "elisabeth", "cornelia", "emma", "lisa", "sophie", "julia", "de jong", "de vries", "van den berg", "bakker", "janssen", "visser", "smit", "meijer", "de boer", "mulder", "de groot", "bos", "vos", "peters", "hendriks", "van dijk", "kok", "jacobs", "de wit", "vermeulen", "van der meer", "van der linden", "van leeuwen", "maas", "verhoeven", "koster", "prins", "huisman", "peeters", "kuijpers", "van dam", "van vliet", "hoekstra", "brouwer"],
+                
+                "Greece": ["giorgos", "dimitris", "nikos", "kostas", "giannis", "christos", "andreas", "thanasis", "michalis", "manolis", "maria", "eleni", "georgia", "sofia", "katerina", "dimitra", "anna", "christina", "ioanna", "vasiliki", "papadopoulos", "karagiannis", "vlachos", "nikolaidis", "dimitriou", "papas", "pappas", "vasileiou", "georgiou", "alexiou", "antoniou", "papadakis", "konstantinou", "athanasiou", "makris", "michailidis", "papanastasiou", "ioannou", "angelopoulos", "panagiotou", "theodorou", "christodoulou", "stavrou", "petridis", "pavlidis", "papadimitriou", "economou", "anagnostou", "dimopoulos", "koutsouris", "vasileiadis", "karamanlis"]
+            }
             
             # If we have only one server, use it for all users
             if len(servers) == 1:
@@ -423,17 +422,11 @@ class RandomUserNotifier:
                     # Format age string
                     age_formatted = self.formatter._format_age_string(years, months, days)
                     
-                    # Generate an international username
+                    # Generate a realistic username
                     country = random.choice(list(international_names.keys()))
-                    username_generators = international_names[country]
-                    
-                    # 80% chance to use country-specific username, 20% chance to use common pattern
-                    if random.random() < 0.8:
-                        username_generator = random.choice(username_generators)
-                    else:
-                        username_generator = random.choice(common_patterns)
-                    
-                    username = username_generator()
+                    name = random.choice(international_names[country])
+                    pattern = random.choice(realistic_patterns)
+                    username = pattern(name, country[:2])
                     
                     # Create user data object
                     user_data = {
@@ -466,17 +459,11 @@ class RandomUserNotifier:
                     # Format age string
                     age_formatted = self.formatter._format_age_string(years, months, days)
                     
-                    # Generate an international username
+                    # Generate a realistic username
                     country = random.choice(list(international_names.keys()))
-                    username_generators = international_names[country]
-                    
-                    # 80% chance to use country-specific username, 20% chance to use common pattern
-                    if random.random() < 0.8:
-                        username_generator = random.choice(username_generators)
-                    else:
-                        username_generator = random.choice(common_patterns)
-                    
-                    username = username_generator()
+                    name = random.choice(international_names[country])
+                    pattern = random.choice(realistic_patterns)
+                    username = pattern(name, country[:2])
                     
                     # Create user data object
                     user_data = {
@@ -513,7 +500,7 @@ class RandomUserNotifier:
             if not user:
                 self.logger.error(f"Could not find user with ID {user_id}")
                 return
-            
+                
             # Send each notification as a separate message with natural delays between them
             for user_data in users:
                 try:
